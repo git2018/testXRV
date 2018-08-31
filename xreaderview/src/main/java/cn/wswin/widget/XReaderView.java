@@ -1,19 +1,12 @@
 package cn.wswin.widget;
 
-import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
-import com.gun0912.tedpermission.PermissionListener;
-import com.gun0912.tedpermission.TedPermission;
 import com.tencent.smtt.sdk.TbsReaderView;
-
-import java.io.File;
-import java.util.ArrayList;
 
 public class XReaderView extends FrameLayout {
 
@@ -41,26 +34,8 @@ public class XReaderView extends FrameLayout {
         this.addView(mTbsReaderView, new LinearLayout.LayoutParams(-1, -1));
     }
 
-    public void display(final File mFile){
-        TedPermission.with(context)
-                .setPermissionListener(new PermissionListener() {
-                    @Override
-                    public void onPermissionGranted() {
-                        display1(mFile);
-                    }
-
-                    @Override
-                    public void onPermissionDenied(ArrayList<String> deniedPermissions) {
-                        Toast.makeText(context, "需要允许访问SD卡", Toast.LENGTH_LONG).show();
-                    }
-                })
-                .setDeniedMessage("需要允许访问SD卡")
-                .setPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .check();
-    }
-
-    private void display1(final File mFile) {
-        XReaderUtil.getInstance().initXReaderUtil(context,mTbsReaderView,mFile);
+    public void display(final String url,final String name) {
+        XReaderUtil.getInstance().initXReaderUtil(context,mTbsReaderView,url,name);
 
         final ProgressDialog dialog = new ProgressDialog(context);
         dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -68,9 +43,15 @@ public class XReaderView extends FrameLayout {
         dialog.setCanceledOnTouchOutside(false);
         dialog.show();
 
-        XReaderUtil.getInstance().initEnv(new XReaderListener() {
+        XReaderUtil.getInstance().start(new XReaderListener() {
+
             @Override
-            public void onFirst() {
+            public void onFileOk() {
+                dialog.setMessage("载入中 ... ");
+            }
+
+            @Override
+            public void onEnvNull() {
                 dialog.setMessage("首次加载，请耐心等待 ... ");
             }
 
