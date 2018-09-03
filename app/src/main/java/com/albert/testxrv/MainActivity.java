@@ -15,7 +15,7 @@ import cn.wswin.widget.XReaderView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private String path = Environment.getExternalStorageDirectory()+ "/test.docx";
+    private String path = Environment.getExternalStorageDirectory()+ "/test.ppt";
     private String path1 = "http://192.168.16.16/test.xlsx";
     private XReaderView xReaderView;
 

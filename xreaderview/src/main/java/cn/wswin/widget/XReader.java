@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.text.TextUtils;
 
 import com.tencent.smtt.sdk.QbSdk;
 import com.tencent.smtt.sdk.TbsReaderView;
@@ -22,7 +21,7 @@ class XReader {
     private TbsReaderView mTbsReaderView;
     private String mFilePath,mFileName;
     private XReaderListener mListener;
-    private String workDir = Environment.getExternalStorageDirectory()+ "";
+    private static String XReaderDir = Environment.getExternalStorageDirectory()+ "/.XReader";
 
     private XReader(){ }
 
@@ -42,6 +41,7 @@ class XReader {
         this.mTbsReaderView = mTbsReaderView;
         this.mFilePath = mFilePath;
         this.mFileName = mFileName;
+        XReaderUtil.createDir(XReaderDir);
     }
 
     private void initEnv() {
@@ -74,43 +74,17 @@ class XReader {
         });
     }
 
-    private String getFileType() {
-        String str = "";
-        if (TextUtils.isEmpty(mFileName)) {
-            return str;
-        }
-        int i = mFileName.lastIndexOf('.');
-        if (i <= -1) {
-            return str;
-        }
-        str = mFileName.substring(i + 1);
-        return str;
-    }
-
-//    private String getTempDir(){
-//        //创建缓存
-//        File mFile = new File(mFilePath);
-//        String bsReaderTemp = mFile.getParent() + "/Temp";
-//        File bsReaderTempFile = new File(bsReaderTemp);
-//        if (!bsReaderTempFile.exists()) {
-//            bsReaderTempFile.mkdir();
-//        }
-//        return bsReaderTemp;
-//    }
-
     public void delTempDir(){
-//        Toast.makeText(context,"清理缓存",Toast.LENGTH_LONG).show();
-        FileUtil.delete(mFilePath);
-        FileUtil.deleteDirectory(workDir);
+        XReaderUtil.deleteDirectory(XReaderDir);
     }
 
     private void display(){
-        Bundle localBundle = new Bundle();
-        localBundle.putString("filePath", mFilePath);
-        localBundle.putString("tempPath", workDir+ "/Temp");
-        boolean bool = mTbsReaderView.preOpen(getFileType(), false);
+        Bundle bundle = new Bundle();
+        bundle.putString("filePath", mFilePath);
+        bundle.putString("tempPath", XReaderDir);
+        boolean bool = mTbsReaderView.preOpen(XReaderUtil.getFileType(mFileName), false);
         if (bool) {
-            mTbsReaderView.openFile(localBundle);
+            mTbsReaderView.openFile(bundle);
         }
     }
 
@@ -118,7 +92,7 @@ class XReader {
         this.mListener = listener;
 
         if (mFilePath.contains("http")) {//网络地址要先下载
-            new DownloaderTask().execute(mFilePath,mFileName);
+            new DownloaderTask().execute();
         } else {
             mListener.onFileOk();
             initEnv();
@@ -130,20 +104,19 @@ class XReader {
     class DownloaderTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... params) {
-            String url = params[0];
-            String name = params[1];
-            String fileName = name;
-            fileName = URLDecoder.decode(fileName);
             try {
-                URL url1 = new URL(url);
-                HttpURLConnection urlConn = (HttpURLConnection) url1.openConnection();
+                URL url = new URL(mFilePath);
+                HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
 
                 if (urlConn.getResponseCode() == 200) {
                     InputStream input = urlConn.getInputStream();
-                    mFilePath = workDir + "/" + mFileName;
-                    FileUtil.writeToSDCard(mFilePath,input);
+
+                    mFileName = URLDecoder.decode(mFileName);
+                    mFilePath = XReaderDir + "/" + mFileName;
+
+                    XReaderUtil.writeToSDCard(mFilePath,input);
                     input.close();
-                    return fileName;
+                    return "";
                 } else {
                     return null;
                 }

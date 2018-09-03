@@ -1,6 +1,7 @@
 package cn.wswin.widget;
 
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
@@ -9,7 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class FileUtil {
+public class XReaderUtil {
 
     public static boolean delete(String fileName) {
         File file = new File(fileName);
@@ -126,4 +127,34 @@ public class FileUtil {
             Log.i("tag", "NO SDCard.");
         }
     }
+
+    public static void createDir(String path) {
+        try {
+            File dir = new File(path);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            File file = new File(dir, ".nomedia");
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+        } catch (Exception e) {
+
+        }
+    }
+
+    public static String getFileType(String mFileName) {
+        String str = "";
+        if (TextUtils.isEmpty(mFileName)) {
+            return str;
+        }
+        int i = mFileName.lastIndexOf('.');
+        if (i <= -1) {
+            return str;
+        }
+        str = mFileName.substring(i + 1);
+        return str;
+    }
+
+
 }
