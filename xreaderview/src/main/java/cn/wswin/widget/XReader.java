@@ -15,29 +15,29 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 
-class XReaderUtil {
+class XReader {
 
-    private static XReaderUtil util;
+    private static XReader util;
     private Context context;
     private TbsReaderView mTbsReaderView;
     private String mFilePath,mFileName;
     private XReaderListener mListener;
     private String workDir = Environment.getExternalStorageDirectory()+ "";
 
-    private XReaderUtil(){ }
+    private XReader(){ }
 
-    public static XReaderUtil getInstance() {
+    public static XReader getInstance() {
         if (util == null) {
-            synchronized (XReaderUtil.class) {
+            synchronized (XReader.class) {
                 if (util == null) {
-                    util = new XReaderUtil();
+                    util = new XReader();
                 }
             }
         }
         return util;
     }
 
-    public void initXReaderUtil(Context context,TbsReaderView mTbsReaderView,String mFilePath,String mFileName) {
+    public void initXReader(Context context, TbsReaderView mTbsReaderView, String mFilePath, String mFileName) {
         this.context = context;
         this.mTbsReaderView = mTbsReaderView;
         this.mFilePath = mFilePath;
