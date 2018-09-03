@@ -32,17 +32,17 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onPermissionGranted() {
 //                        xReaderView.display(path,"test.docx");
-//                        path1 = "https://www.wenkuxiazai.com/word/43d40c8483d049649b6658c2-1.doc";
-                        xReaderView.display(path1, "test.xlsssx");
+                        path1 = "http://androidoffice.com/2FFC52C82873B95266E0AC963B4440D1.txt";
+                        xReaderView.display(path1, "test.txt");
 //                        xReaderView.display(path1, "test.xlsssx", new XReaderListener() {
 //                            @Override
-//                            public void onCreate() {
-//                                Toast.makeText(MainActivity.this,"onCreate",Toast.LENGTH_LONG).show();
+//                            public void onEnvInit() {
+//                                Toast.makeText(MainActivity.this,"onEnvInit",Toast.LENGTH_LONG).show();
 //                            }
 //
 //                            @Override
-//                            public void onLoading() {
-//                                Toast.makeText(MainActivity.this,"onLoading",Toast.LENGTH_LONG).show();
+//                            public void onEnvLoad() {
+//                                Toast.makeText(MainActivity.this,"onEnvLoad",Toast.LENGTH_LONG).show();
 //                            }
 //
 //                            @Override

@@ -52,7 +52,7 @@ class XReader {
     private void initEnvironment() {
 
         if (QbSdk.getTbsVersion(context) == 0) {//未安装
-            mListener.onCreate();
+            mListener.onEnvInit();
             QbSdk.initX5Environment(context.getApplicationContext(), new QbSdk.PreInitCallback() {
                 @Override
                 public void onCoreInitFinished() {
@@ -60,16 +60,14 @@ class XReader {
 
                 @Override
                 public void onViewInitFinished(boolean b) {
-                    mListener.onSuccess();
                     display();
                 }
             });
         } else {
             if (QbSdk.isTbsCoreInited()){//已加载
-                mListener.onSuccess();
                 display();
             }else {//未加载
-                mListener.onLoading();
+                mListener.onEnvLoad();
                 QbSdk.initX5Environment(context.getApplicationContext(), new QbSdk.PreInitCallback() {
                     @Override
                     public void onCoreInitFinished() {
@@ -77,7 +75,6 @@ class XReader {
 
                     @Override
                     public void onViewInitFinished(boolean b) {
-                        mListener.onSuccess();
                         display();
                     }
                 });
@@ -97,6 +94,7 @@ class XReader {
         boolean bool = mTbsReaderView.preOpen(getFileType(mFileName), false);
         if (bool) {
             mTbsReaderView.openFile(bundle);
+            mListener.onSuccess();
         }else {
             mListener.onError("不支持" + getFileType(mFileName) + "格式");
         }
@@ -104,7 +102,7 @@ class XReader {
 
     public void setOnXReaderListener(final XReaderListener listener) {
         this.mListener = listener;
-
+        mListener.onFileLoad();
         if (mFilePath.contains("http")) {//网络地址要先下载
             new DownloaderTask().execute();
         } else {
@@ -195,6 +193,7 @@ class XReader {
                 FileOutputStream fos = new FileOutputStream(file);
                 byte[] b = new byte[2048];
                 int j = 0;
+
                 while ((j = input.read(b)) != -1) {
                     fos.write(b, 0, j);
                 }

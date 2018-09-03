@@ -53,12 +53,17 @@ public class XReaderView extends FrameLayout {
         XReader.getInstance().setOnXReaderListener(new XReaderListener() {
 
             @Override
-            public void onCreate() {
+            public void onFileLoad() {
+                dialog.setMessage("正在下载文件 ... ");
+            }
+
+            @Override
+            public void onEnvInit() {
                 dialog.setMessage("首次加载，请耐心等待 ... ");
             }
 
             @Override
-            public void onLoading() {
+            public void onEnvLoad() {
                 dialog.setMessage("组件加载中 ... ");
             }
 
