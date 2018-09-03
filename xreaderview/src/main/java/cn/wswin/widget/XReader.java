@@ -234,16 +234,16 @@ class DownloaderTask extends AsyncTask<String, Void, String> {
         boolean flag = true;
         // 删除文件夹中的所有文件包括子目录
         File[] files = dirFile.listFiles();
-        for (int i = 0; i < files.length; i++) {
+        for (File file : files) {
             // 删除子文件
-            if (files[i].isFile()) {
-                flag = deleteFile(files[i].getAbsolutePath());
+            if (file.isFile()) {
+                flag = deleteFile(file.getAbsolutePath());
                 if (!flag)
                     break;
             }
             // 删除子目录
-            else if (files[i].isDirectory()) {
-                flag = deleteDir(files[i].getAbsolutePath());
+            else if (file.isDirectory()) {
+                flag = deleteDir(file.getAbsolutePath());
                 if (!flag)
                     break;
             }
