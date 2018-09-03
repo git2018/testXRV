@@ -86,6 +86,11 @@ class XReader {
     }
 
     private void display(){
+        File file = new File(mFilePath);
+        if (!file.exists()){
+            mListener.onError("文件获取失败");
+            return;
+        }
         Bundle bundle = new Bundle();
         bundle.putString("filePath", mFilePath);
         bundle.putString("tempPath", XReaderDir);

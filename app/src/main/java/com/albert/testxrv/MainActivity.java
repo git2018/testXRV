@@ -32,7 +32,8 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onPermissionGranted() {
 //                        xReaderView.display(path,"test.docx");
-                        xReaderView.display(path1, "test.xlsx");
+                        path1 = "https://www.wenkuxiazai.com/word/43d40c8483d049649b6658c2-1.doc";
+                        xReaderView.display(path1, "a.doc");
 //                        xReaderView.display(path1, "test.xlsssx", new XReaderListener() {
 //                            @Override
 //                            public void onCreate() {
