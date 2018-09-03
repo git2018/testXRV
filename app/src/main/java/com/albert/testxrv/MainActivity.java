@@ -11,6 +11,7 @@ import com.gun0912.tedpermission.TedPermission;
 
 import java.util.ArrayList;
 
+import cn.wswin.widget.XReaderListener;
 import cn.wswin.widget.XReaderView;
 
 public class MainActivity extends AppCompatActivity {
@@ -31,7 +32,28 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onPermissionGranted() {
 //                        xReaderView.display(path,"test.docx");
-                        xReaderView.display(path1,"test.xlsx");
+                        xReaderView.display(path1, "test.xlsx");
+//                        xReaderView.display(path1, "test.xlsssx", new XReaderListener() {
+//                            @Override
+//                            public void onCreate() {
+//                                Toast.makeText(MainActivity.this,"onCreate",Toast.LENGTH_LONG).show();
+//                            }
+//
+//                            @Override
+//                            public void onLoading() {
+//                                Toast.makeText(MainActivity.this,"onLoading",Toast.LENGTH_LONG).show();
+//                            }
+//
+//                            @Override
+//                            public void onSuccess() {
+//                                Toast.makeText(MainActivity.this,"onSuccess",Toast.LENGTH_LONG).show();
+//                            }
+//
+//                            @Override
+//                            public void onError(String msg) {
+//                                Toast.makeText(MainActivity.this,"onError -> "+msg,Toast.LENGTH_LONG).show();
+//                            }
+//                        });
                     }
 
                     @Override

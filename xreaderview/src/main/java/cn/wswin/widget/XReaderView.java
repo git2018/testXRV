@@ -36,8 +36,13 @@ public class XReaderView extends FrameLayout {
         this.addView(mTbsReaderView, new LinearLayout.LayoutParams(-1, -1));
     }
 
-    public void display(final String url,final String name) {
-        XReader.getInstance().initXReader(context,mTbsReaderView,url,name);
+    public void display(final String filePath,final String fileName,XReaderListener listener) {
+        XReader.getInstance().initXReader(context,mTbsReaderView,filePath,fileName);
+        XReader.getInstance().setOnXReaderListener(listener);
+    }
+
+    public void display(final String filePath,final String fileName) {
+        XReader.getInstance().initXReader(context,mTbsReaderView,filePath,fileName);
 
         final ProgressDialog dialog = new ProgressDialog(context);
         dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -45,7 +50,7 @@ public class XReaderView extends FrameLayout {
         dialog.setCanceledOnTouchOutside(false);
         dialog.show();
 
-        XReader.getInstance().start(new XReaderListener() {
+        XReader.getInstance().setOnXReaderListener(new XReaderListener() {
 
             @Override
             public void onCreate() {
@@ -82,7 +87,7 @@ public class XReaderView extends FrameLayout {
 
     public void destroy() {
         if (mTbsReaderView != null) {
-            XReader.getInstance().delTempDir();
+            XReader.getInstance().clear();
             mTbsReaderView.onStop();
         }
     }

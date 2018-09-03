@@ -5,10 +5,15 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.TextUtils;
 
 import com.tencent.smtt.sdk.QbSdk;
 import com.tencent.smtt.sdk.TbsReaderView;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -41,48 +46,50 @@ class XReader {
         this.mTbsReaderView = mTbsReaderView;
         this.mFilePath = mFilePath;
         this.mFileName = mFileName;
-        XReaderUtil.createDir(XReaderDir);
+        createDir(XReaderDir);
     }
 
-    private void initEnv() {
+    private void initEnvironment() {
 
         if (QbSdk.getTbsVersion(context) == 0) {//未安装
             mListener.onCreate();
-            initX5();
+            QbSdk.initX5Environment(context.getApplicationContext(), new QbSdk.PreInitCallback() {
+                @Override
+                public void onCoreInitFinished() {
+                }
+
+                @Override
+                public void onViewInitFinished(boolean b) {
+                    mListener.onSuccess();
+                    display();
+                }
+            });
         } else {
             if (QbSdk.isTbsCoreInited()){//已加载
                 mListener.onSuccess();
                 display();
             }else {//未加载
                 mListener.onLoading();
-                initX5();
+                QbSdk.initX5Environment(context.getApplicationContext(), new QbSdk.PreInitCallback() {
+                    @Override
+                    public void onCoreInitFinished() {
+                    }
+
+                    @Override
+                    public void onViewInitFinished(boolean b) {
+                        mListener.onSuccess();
+                        display();
+                    }
+                });
             }
         }
-    }
-
-    private void initX5(){
-        QbSdk.initX5Environment(context.getApplicationContext(), new QbSdk.PreInitCallback() {
-            @Override
-            public void onCoreInitFinished() {
-            }
-
-            @Override
-            public void onViewInitFinished(boolean b) {
-                mListener.onSuccess();
-                display();
-            }
-        });
-    }
-
-    public void delTempDir(){
-        XReaderUtil.deleteDirectory(XReaderDir);
     }
 
     private void display(){
         Bundle bundle = new Bundle();
         bundle.putString("filePath", mFilePath);
         bundle.putString("tempPath", XReaderDir);
-        boolean bool = mTbsReaderView.preOpen(XReaderUtil.getFileType(mFileName), false);
+        boolean bool = mTbsReaderView.preOpen(getFileType(mFileName), false);
         if (bool) {
             mTbsReaderView.openFile(bundle);
         }else {
@@ -90,17 +97,21 @@ class XReader {
         }
     }
 
-    public void start(final XReaderListener listener) {
+    public void setOnXReaderListener(final XReaderListener listener) {
         this.mListener = listener;
 
         if (mFilePath.contains("http")) {//网络地址要先下载
             new DownloaderTask().execute();
         } else {
-            initEnv();
+            initEnvironment();
         }
     }
 
+    public void clear(){
+        deleteDir(XReaderDir);
+    }
 
+//**************************************  以下为辅助方法区  **************************************//
     @SuppressLint("StaticFieldLeak")
     class DownloaderTask extends AsyncTask<String, Void, String> {
         @Override
@@ -115,7 +126,7 @@ class XReader {
                     mFileName = URLDecoder.decode(mFileName);
                     mFilePath = XReaderDir + "/" + mFileName;
 
-                    XReaderUtil.writeToSDCard(mFilePath,input);
+                    writeToSDCard(mFilePath,input);
                     input.close();
                     return "";
                 } else {
@@ -130,7 +141,118 @@ class XReader {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            initEnv();
+            initEnvironment();
         }
     }
+
+    private String getFileType(String mFileName) {
+        String str = "";
+        if (TextUtils.isEmpty(mFileName)) {
+            return str;
+        }
+        int i = mFileName.lastIndexOf('.');
+        if (i <= -1) {
+            return str;
+        }
+        str = mFileName.substring(i + 1);
+        return str;
+    }
+
+    private void createDir(String path) {
+        try {
+            File dir = new File(path);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            File file = new File(dir, ".nomedia");
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+        } catch (Exception e) {
+
+        }
+    }
+
+    private void writeToSDCard(String mFilePath,InputStream input) {
+        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            File file = new File(mFilePath);
+            File fileParent = file.getParentFile();
+            if (! fileParent.exists()){
+                fileParent.mkdirs();
+                try {
+                    file.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            try {
+                FileOutputStream fos = new FileOutputStream(file);
+                byte[] b = new byte[2048];
+                int j = 0;
+                while ((j = input.read(b)) != -1) {
+                    fos.write(b, 0, j);
+                }
+                fos.flush();
+                fos.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            mListener.onError("未找到SD卡");
+        }
+    }
+
+    private boolean deleteFile(String fileName) {
+        File file = new File(fileName);
+        // 如果文件路径所对应的文件存在，并且是一个文件，则直接删除
+        if (file.exists() && file.isFile()) {
+            if (file.delete()) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    private boolean deleteDir(String dir) {
+        if (!dir.endsWith(File.separator))
+            dir = dir + File.separator;
+        File dirFile = new File(dir);
+        if ((!dirFile.exists()) || (!dirFile.isDirectory())) {
+            return false;
+        }
+        boolean flag = true;
+        // 删除文件夹中的所有文件包括子目录
+        File[] files = dirFile.listFiles();
+        for (int i = 0; i < files.length; i++) {
+            // 删除子文件
+            if (files[i].isFile()) {
+                flag = deleteFile(files[i].getAbsolutePath());
+                if (!flag)
+                    break;
+            }
+            // 删除子目录
+            else if (files[i].isDirectory()) {
+                flag = deleteDir(files[i].getAbsolutePath());
+                if (!flag)
+                    break;
+            }
+        }
+        if (!flag) {
+            return false;
+        }
+        // 删除当前目录
+        if (dirFile.delete()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
 }
