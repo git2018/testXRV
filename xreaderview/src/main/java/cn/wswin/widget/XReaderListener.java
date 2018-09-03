@@ -1,8 +1,8 @@
 package cn.wswin.widget;
 
 public interface XReaderListener {
-    void onFileOk();
-    void onEnvNull();
-    void onEnvPrepare();
-    void onEnvOk();
+    void onCreate();
+    void onLoading();
+    void onSuccess();
+    void onError(String msg);
 }

@@ -47,14 +47,14 @@ class XReader {
     private void initEnv() {
 
         if (QbSdk.getTbsVersion(context) == 0) {//未安装
-            mListener.onEnvNull();
+            mListener.onCreate();
             initX5();
         } else {
             if (QbSdk.isTbsCoreInited()){//已加载
-                mListener.onEnvOk();
+                mListener.onSuccess();
                 display();
             }else {//未加载
-                mListener.onEnvPrepare();
+                mListener.onLoading();
                 initX5();
             }
         }
@@ -68,7 +68,7 @@ class XReader {
 
             @Override
             public void onViewInitFinished(boolean b) {
-                mListener.onEnvOk();
+                mListener.onSuccess();
                 display();
             }
         });
@@ -85,6 +85,8 @@ class XReader {
         boolean bool = mTbsReaderView.preOpen(XReaderUtil.getFileType(mFileName), false);
         if (bool) {
             mTbsReaderView.openFile(bundle);
+        }else {
+            mListener.onError("不支持当前格式");
         }
     }
 
@@ -94,7 +96,6 @@ class XReader {
         if (mFilePath.contains("http")) {//网络地址要先下载
             new DownloaderTask().execute();
         } else {
-            mListener.onFileOk();
             initEnv();
         }
     }
@@ -129,7 +130,6 @@ class XReader {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            mListener.onFileOk();
             initEnv();
         }
     }
