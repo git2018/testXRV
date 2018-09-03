@@ -15,13 +15,14 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 
 class XReader {
 
-    private static XReader util;
+    private static WeakReference<XReader> reference;
     private Context context;
     private TbsReaderView mTbsReaderView;
     private String mFilePath,mFileName;
@@ -31,14 +32,14 @@ class XReader {
     private XReader(){ }
 
     public static XReader getInstance() {
-        if (util == null) {
+        if (reference == null) {
             synchronized (XReader.class) {
-                if (util == null) {
-                    util = new XReader();
+                if (reference == null) {
+                    reference = new WeakReference<>(new XReader());
                 }
             }
         }
-        return util;
+        return reference.get();
     }
 
     public void initXReader(Context context, TbsReaderView mTbsReaderView, String mFilePath, String mFileName) {
@@ -115,8 +116,8 @@ class XReader {
     }
 
 //**************************************  以下为辅助方法区  **************************************//
-    @SuppressLint("StaticFieldLeak")
-    class DownloaderTask extends AsyncTask<String, Void, String> {
+@SuppressLint("StaticFieldLeak")
+class DownloaderTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... params) {
             try {
