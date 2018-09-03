@@ -98,7 +98,7 @@ class XReader {
         if (bool) {
             mTbsReaderView.openFile(bundle);
         }else {
-            mListener.onError("不支持当前格式");
+            mListener.onError("不支持" + getFileType(mFileName) + "格式");
         }
     }
 
